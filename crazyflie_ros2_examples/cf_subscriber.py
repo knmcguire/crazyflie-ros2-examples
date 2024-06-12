@@ -24,11 +24,7 @@ class CrazyflieSubscriber(Node):
         self._cf.open_link(link_uri)
 
         super().__init__('crazyflie_subscriber')
-        self.subscription = self.create_subscription(
-            Twist,
-            'cmd_vel',
-            self._listener_callback,
-            10)
+        self.subscription = self.create_subscription(Twist,'cmd_vel', self._listener_callback, 10)
         self.subscription  # prevent unused variable warning
 
         self.fixed_height = 0.3

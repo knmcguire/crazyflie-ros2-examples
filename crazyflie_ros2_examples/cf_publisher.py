@@ -1,10 +1,10 @@
+# ROS 2 imports
 import rclpy
 from rclpy.node import Node
 
+#msg imports
 from std_msgs.msg import String
-from std_msgs.msg import Float32MultiArray
-
-import logging
+from geometry_msgs.msg import Point32
 
 import cflib.crtp  # noqa
 from cflib.crazyflie import Crazyflie
@@ -21,7 +21,7 @@ class CrazyfliePublisher(Node):
         self._cf.open_link(link_uri)
 
         super().__init__('crazyflie_publisher')
-        self.publisher_ = self.create_publisher(Float32MultiArray, 'topic', 10)
+        self.publisher_ = self.create_publisher(Point32, 'topic', 10)
 
     def _connected(self, link_uri):
 
@@ -43,10 +43,12 @@ class CrazyfliePublisher(Node):
         #self.publisher_.publish(msg)
         #self.get_logger().info('Publishing: "%s"' % msg.data)
 
-        msg = Float32MultiArray()
-        msg.data = [data['stateEstimate.x'], data['stateEstimate.y'], data['stateEstimate.z']]
+        msg = Point32()
+        msg.x = data['stateEstimate.x']
+        msg.y = data['stateEstimate.y']
+        msg.z = data['stateEstimate.z']
         self.publisher_.publish(msg)
-        self.get_logger().info('Publishing: "%s"' % msg.data)
+        self.get_logger().info('Publishing: "%s"' % msg)
 
 
 def main(args=None):

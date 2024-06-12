@@ -24,11 +24,12 @@ class CrazyflieService(Node):
         super().__init__('crazyflie_service')
         self.create_service(Trigger, 'takeoff', self._take_off_callback)
         self.create_service(Trigger, 'land', self._land_callback)
+        self.fixed_height = 0.3
 
 
     def _take_off_callback(self, request, response):
         self.get_logger().info('Taking off!')
-        self._cf.high_level_commander.takeoff(0.5, 1.0)
+        self._cf.high_level_commander.takeoff(self.fixed_height, 1.0)
         response.success = True
         return response
     
