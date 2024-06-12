@@ -15,11 +15,12 @@ setup(
     zip_safe=True,
     maintainer='kimberly',
     maintainer_email='kimberly@bitcraze.io',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    description='Showing ROS 2 examples with the Crazyflie Library',
+    license='MIT',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'talker = crazyflie-ros2-examples.cf_publisher:main',
         ],
     },
 )
