@@ -4,12 +4,10 @@ from rclpy.node import Node
 from std_msgs.msg import String
 
 import logging
-from threading import Timer
 
 import cflib.crtp  # noqa
 from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.log import LogConfig
-from cflib.utils import uri_helper
 
 logging.basicConfig(level=logging.ERROR)
 
@@ -44,18 +42,13 @@ class CrazyfliePublisher(Node):
         self.publisher_.publish(msg)
         self.get_logger().info('Publishing: "%s"' % msg.data)
 
-        #print(f'[{timestamp}][{logconf.name}]: ', end='')
-        #for name, value in data.items():
-        #    print(f'{name}: {value:3.3f} ', end='')
-        #print()
-
 
 def main(args=None):
     cflib.crtp.init_drivers()
+    uri = "radio://0/40/2M/E7E7E7E704"
 
     rclpy.init(args=args)
 
-    uri = "radio://0/40/2M/E7E7E7E704"
     crazyflie_publisher = CrazyfliePublisher(uri)
 
     rclpy.spin(crazyflie_publisher)
