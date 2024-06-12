@@ -8,7 +8,8 @@ import logging
 import cflib.crtp  # noqa
 from cflib.crazyflie import Crazyflie
 
-##ros2 topic pub /topic std_msgs/msg/String '{data: "hello"}'
+# ros2 service call /takeoff std_srvs/srv/Trigger
+# ros2 service call /land std_srvs/srv/Trigger
 
 logging.basicConfig(level=logging.ERROR)
 
