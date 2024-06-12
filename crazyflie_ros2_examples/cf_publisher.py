@@ -3,35 +3,64 @@ from rclpy.node import Node
 
 from std_msgs.msg import String
 
+import logging
+from threading import Timer
 
-class MinimalPublisher(Node):
+import cflib.crtp  # noqa
+from cflib.crazyflie import Crazyflie
+from cflib.crazyflie.log import LogConfig
+from cflib.utils import uri_helper
 
-    def __init__(self):
-        super().__init__('minimal_publisher')
+logging.basicConfig(level=logging.ERROR)
+
+class CrazyfliePublisher(Node):
+
+    def __init__(self, link_uri):
+
+        self._cf = Crazyflie(rw_cache='./cache')
+        self._cf.connected.add_callback(self._connected)
+        self._cf.open_link(link_uri)
+
+        super().__init__('crazyflie_publisher')
         self.publisher_ = self.create_publisher(String, 'topic', 10)
-        timer_period = 0.5  # seconds
-        self.timer = self.create_timer(timer_period, self.timer_callback)
-        self.i = 0
 
-    def timer_callback(self):
+    def _connected(self, link_uri):
+
+        self.get_logger().info('Connected to %s' % link_uri)
+
+        # The definition of the logconfig can be made before connecting
+        self._lg_pos = LogConfig(name='Stabilizer', period_in_ms=1000)
+        self._lg_pos.add_variable('stateEstimate.x', 'float')
+        self._lg_pos.add_variable('stateEstimate.y', 'float')
+        self._lg_pos.add_variable('stateEstimate.z', 'float')
+        self._cf.log.add_config(self._lg_pos)
+        self._lg_pos.data_received_cb.add_callback(self._pos_log_data)
+        self._lg_pos.start()
+
+    def _pos_log_data(self, timestamp, data, logconf):
+        """Callback from a the log API when data arrives"""
         msg = String()
-        msg.data = 'Hello World: %d' % self.i
+        msg.data = 'Hello! I am %s and I have data from timestamp %d!' % (self._cf.link_uri, timestamp)
         self.publisher_.publish(msg)
         self.get_logger().info('Publishing: "%s"' % msg.data)
-        self.i += 1
+
+        #print(f'[{timestamp}][{logconf.name}]: ', end='')
+        #for name, value in data.items():
+        #    print(f'{name}: {value:3.3f} ', end='')
+        #print()
 
 
 def main(args=None):
+    cflib.crtp.init_drivers()
+
     rclpy.init(args=args)
 
-    minimal_publisher = MinimalPublisher()
+    uri = "radio://0/40/2M/E7E7E7E704"
+    crazyflie_publisher = CrazyfliePublisher(uri)
 
-    rclpy.spin(minimal_publisher)
+    rclpy.spin(crazyflie_publisher)
 
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    minimal_publisher.destroy_node()
+    crazyflie_publisher.destroy_node()
     rclpy.shutdown()
 
 
