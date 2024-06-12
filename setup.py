@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
 entry_points={
         'console_scripts': [
-                'talker = crazyflie_ros2_examples.publisher_member_function:main',
+                'talker = crazyflie_ros2_examples.cf_publisher:main',
         ],
 },
 )
