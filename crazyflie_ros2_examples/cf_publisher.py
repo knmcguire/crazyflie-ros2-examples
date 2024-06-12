@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 
 from std_msgs.msg import String
+from std_msgs.msg import Float32MultiArray
 
 import logging
 
@@ -20,7 +21,7 @@ class CrazyfliePublisher(Node):
         self._cf.open_link(link_uri)
 
         super().__init__('crazyflie_publisher')
-        self.publisher_ = self.create_publisher(String, 'topic', 10)
+        self.publisher_ = self.create_publisher(Float32MultiArray, 'topic', 10)
 
     def _connected(self, link_uri):
 
@@ -37,8 +38,13 @@ class CrazyfliePublisher(Node):
 
     def _pos_log_data(self, timestamp, data, logconf):
         """Callback from a the log API when data arrives"""
-        msg = String()
-        msg.data = 'Hello! I am %s and I have data from timestamp %d!' % (self._cf.link_uri, timestamp)
+        #msg = String()
+        #msg.data = 'Hello! I am %s and I have data from timestamp %d!' % (self._cf.link_uri, timestamp)
+        #self.publisher_.publish(msg)
+        #self.get_logger().info('Publishing: "%s"' % msg.data)
+
+        msg = Float32MultiArray()
+        msg.data = [data['stateEstimate.x'], data['stateEstimate.y'], data['stateEstimate.z']]
         self.publisher_.publish(msg)
         self.get_logger().info('Publishing: "%s"' % msg.data)
 
