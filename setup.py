@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'crazyflie-ros2-examples'
+package_name = 'crazyflie_ros2_examples'
 
 setup(
     name=package_name,
@@ -18,9 +18,9 @@ setup(
     description='Showing ROS 2 examples with the Crazyflie Library',
     license='MIT',
     tests_require=['pytest'],
-    entry_points={
+entry_points={
         'console_scripts': [
-            'talker = crazyflie-ros2-examples.cf_publisher:main',
+                'talker = crazyflie_ros2_examples.publisher_member_function:main',
         ],
-    },
+},
 )
