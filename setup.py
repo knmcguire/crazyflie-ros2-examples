@@ -21,6 +21,8 @@ setup(
 entry_points={
         'console_scripts': [
                 'talker = crazyflie_ros2_examples.cf_publisher:main',
+                'subscriber = crazyflie_ros2_examples.cf_subscriber:main',
+
         ],
 },
 )
