@@ -6,6 +6,8 @@ from rclpy.node import Node
 from std_msgs.msg import String
 from geometry_msgs.msg import Point32
 
+#Crazyflie imports
+import logging
 import cflib.crtp  # noqa
 from cflib.crazyflie import Crazyflie
 from cflib.crazyflie.log import LogConfig
@@ -13,22 +15,23 @@ from cflib.crazyflie.log import LogConfig
 logging.basicConfig(level=logging.ERROR)
 
 class CrazyfliePublisher(Node):
-
     def __init__(self, link_uri):
 
+        # Crazyflie open link
         self._cf = Crazyflie(rw_cache='./cache')
         self._cf.connected.add_callback(self._connected)
         self._cf.open_link(link_uri)
 
+        #ros2 specific
         super().__init__('crazyflie_publisher')
         self.publisher_ = self.create_publisher(Point32, 'topic', 10)
 
+    # crazyflie connected
     def _connected(self, link_uri):
 
         self.get_logger().info('Connected to %s' % link_uri)
 
-        # The definition of the logconfig can be made before connecting
-        self._lg_pos = LogConfig(name='Stabilizer', period_in_ms=1000)
+        self._lg_pos = LogConfig(name='Stabilizer', period_in_ms=100)
         self._lg_pos.add_variable('stateEstimate.x', 'float')
         self._lg_pos.add_variable('stateEstimate.y', 'float')
         self._lg_pos.add_variable('stateEstimate.z', 'float')
@@ -36,6 +39,7 @@ class CrazyfliePublisher(Node):
         self._lg_pos.data_received_cb.add_callback(self._pos_log_data)
         self._lg_pos.start()
 
+    # log pos call back, and it sends out the topic
     def _pos_log_data(self, timestamp, data, logconf):
         """Callback from a the log API when data arrives"""
         #msg = String()
@@ -56,11 +60,8 @@ def main(args=None):
     uri = "radio://0/40/2M/E7E7E7E704"
 
     rclpy.init(args=args)
-
     crazyflie_publisher = CrazyfliePublisher(uri)
-
     rclpy.spin(crazyflie_publisher)
-
     crazyflie_publisher.destroy_node()
     rclpy.shutdown()
 

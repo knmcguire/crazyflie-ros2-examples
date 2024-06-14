@@ -19,10 +19,12 @@ class CrazyflieSubscriber(Node):
 
     def __init__(self, link_uri):
 
+        # Crazyflie specific
         self._cf = Crazyflie(rw_cache='./cache')
         self._cf.connected.add_callback(self._connected)
         self._cf.open_link(link_uri)
 
+        # ros2 specific
         super().__init__('crazyflie_subscriber')
         self.subscription = self.create_subscription(Twist,'cmd_vel', self._listener_callback, 10)
         self.subscription  # prevent unused variable warning
@@ -31,7 +33,7 @@ class CrazyflieSubscriber(Node):
 
     def _listener_callback(self, msg):
         self.get_logger().info('I heard: "%s"' % msg)
-        self._cf.commander.send_hover_setpoint(msg.linear.x, msg.linear.y, msg.angular.z,  self.fixed_height)
+        self._cf.commander.send_hover_setpoint(msg.linear.x, msg.linear.y, msg.angular.z, self.fixed_height)
 
 
     def _connected(self, link_uri):
